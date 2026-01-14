@@ -1,125 +1,118 @@
-{\rtf1\ansi\ansicpg1252\cocoartf2867
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
-\margl1440\margr1440\vieww11520\viewh8400\viewkind0
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hourly Billing Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        h1 { text-align: center; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input[type="text"] { width: 100%; padding: 10px; font-size: 16px; }
+        button { margin-top: 20px; padding: 12px 20px; font-size: 16px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #result { margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; display: none; }
+        .highlight { font-size: 1.4em; font-weight: bold; color: #28a745; }
+        .examples { font-size: 0.9em; color: #666; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Hourly Billing Calculator</h1>
+    <p>Base rate: $65/hr → with 30% markup (effective $84.50/hr)</p>
 
-\f0\fs24 \cf0 <!DOCTYPE html>\
-<html lang="en">\
-<head>\
-    <meta charset="UTF-8">\
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">\
-    <title>Hourly Billing Calculator</title>\
-    <style>\
-        body \{ font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; \}\
-        h1 \{ text-align: center; \}\
-        label \{ display: block; margin-top: 15px; font-weight: bold; \}\
-        input[type="text"] \{ width: 100%; padding: 10px; font-size: 16px; \}\
-        button \{ margin-top: 20px; padding: 12px 20px; font-size: 16px; background: #007bff; color: white; border: none; cursor: pointer; \}\
-        button:hover \{ background: #0056b3; \}\
-        #result \{ margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; display: none; \}\
-        .highlight \{ font-size: 1.4em; font-weight: bold; color: #28a745; \}\
-        .examples \{ font-size: 0.9em; color: #666; margin-top: 5px; \}\
-    </style>\
-</head>\
-<body>\
-    <h1>Hourly Billing Calculator</h1>\
-    <p>Base rate: $65/hr \uc0\u8594  with 30% markup (effective $84.50/hr)</p>\
-\
-    <label for="timeInput">Time worked:</label>\
-    <input type="text" id="timeInput" placeholder="e.g. 8:30, 8.5, 8h 30m, or 510m">\
-    <div class="examples">Examples: 8:30 &nbsp;&nbsp; 8.5 &nbsp;&nbsp; 8h30m &nbsp;&nbsp; 510m (for 8h 30m)</div>\
-\
-    <button onclick="calculate()">Calculate</button>\
-\
-    <div id="result">\
-        <p>Actual time worked: <span id="timeDisplay"></span></p>\
-        <p>Base earnings (at $65/hr): <span id="base"></span></p>\
-        <p class="highlight">Final total (with +30% markup): <span id="total"></span></p>\
-        <p>Equivalent billable hours at $65/hr to reach final total: <span id="equivalentTime"></span></p>\
-    </div>\
-\
-    <script>\
-        function parseTime(input) \{\
-            input = input.trim().toLowerCase();\
-\
-            // Handle HH:MM format\
-            if (input.includes(':')) \{\
-                const parts = input.split(':');\
-                if (parts.length === 2) \{\
-                    const h = parseFloat(parts[0]) || 0;\
-                    const m = parseFloat(parts[1]) || 0;\
-                    if (m < 60) return \{ hours: h, minutes: m, decimal: h + m/60 \};\
-                \}\
-            \}\
-\
-            // Handle decimal hours (e.g. 8.5 or 8,5)\
-            if (input.includes('.') || input.includes(',')) \{\
-                const decimal = parseFloat(input.replace(',', '.'));\
-                if (!isNaN(decimal)) \{\
-                    const h = Math.floor(decimal);\
-                    const m = Math.round((decimal - h) * 60);\
-                    return \{ hours: h, minutes: m, decimal: decimal \};\
-                \}\
-            \}\
-\
-            // Handle "8h 30m" or "8h30m" or just minutes "510m"\
-            const hMatch = input.match(/(\\d+)h/);\
-            const mMatch = input.match(/(\\d+)m/);\
-            let h = 0, m = 0;\
-            if (hMatch) h = parseInt(hMatch[1]);\
-            if (mMatch) m = parseInt(mMatch[1]);\
-            if (h > 0 || m > 0) \{\
-                if (m < 60 || (m >= 60 && !hMatch)) \{  // allow total minutes if no h\
-                    if (m >= 60 && !hMatch) \{\
-                        h = Math.floor(m / 60);\
-                        m = m % 60;\
-                    \}\
-                    return \{ hours: h, minutes: m, decimal: h + m/60 \};\
-                \}\
-            \}\
-\
-            // Fallback: treat as decimal hours if numeric\
-            const num = parseFloat(input);\
-            if (!isNaN(num)) \{\
-                const h = Math.floor(num);\
-                const m = Math.round((num - h) * 60);\
-                return \{ hours: h, minutes: m, decimal: num \};\
-            \}\
-\
-            return null; // invalid\
-        \}\
-\
-        function formatTimeDisplay(decimalHours) \{\
-            const h = Math.floor(decimalHours);\
-            const m = Math.round((decimalHours - h) * 60);\
-            const hDisplay = h > 0 ? `$\{h\} hour$\{h !== 1 ? 's' : ''\}` : '';\
-            const mDisplay = m > 0 ? `$\{m\} minute$\{m !== 1 ? 's' : ''\}` : '';\
-            const timeText = [hDisplay, mDisplay].filter(Boolean).join(' and ') || '0 minutes';\
-            return `$\{timeText\} ($\{decimalHours.toFixed(2)\} decimal hours)`;\
-        \}\
-\
-        function calculate() \{\
-            const input = document.getElementById('timeInput').value;\
-            const parsed = parseTime(input);\
-\
-            if (!parsed || parsed.decimal <= 0) \{\
-                alert('Please enter a valid positive time (e.g. 8:30, 8.5, 8h30m, or 510m)');\
-                return;\
-            \}\
-\
-            const baseAmount = parsed.decimal * 65;\
-            const finalAmount = baseAmount * 1.3;  // +30% markup\
-            const equivalentDecimal = finalAmount / 65;  // This is exactly parsed.decimal * 1.3\
-\
-            document.getElementById('timeDisplay').textContent = formatTimeDisplay(parsed.decimal);\
-            document.getElementById('base').textContent = '$' + baseAmount.toFixed(2);\
-            document.getElementById('total').textContent = '$' + finalAmount.toFixed(2);\
-            document.getElementById('equivalentTime').textContent = formatTimeDisplay(equivalentDecimal);\
-\
-            document.getElementById('result').style.display = 'block';\
-        \}\
-    </script>\
-</body>\
-</html>}
+    <label for="timeInput">Time worked:</label>
+    <input type="text" id="timeInput" placeholder="e.g. 8:30, 8.5, 8h 30m, or 510m">
+    <div class="examples">Examples: 8:30 &nbsp;&nbsp; 8.5 &nbsp;&nbsp; 8h30m &nbsp;&nbsp; 510m (for 8h 30m)</div>
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div id="result">
+        <p>Actual time worked: <span id="timeDisplay"></span></p>
+        <p>Base earnings (at $65/hr): <span id="base"></span></p>
+        <p class="highlight">Final total (with +30% markup): <span id="total"></span></p>
+        <p>Equivalent billable hours at $65/hr to reach final total: <span id="equivalentTime"></span></p>
+    </div>
+
+    <script>
+        function parseTime(input) {
+            input = input.trim().toLowerCase();
+
+            // Handle HH:MM format
+            if (input.includes(':')) {
+                const parts = input.split(':');
+                if (parts.length === 2) {
+                    const h = parseFloat(parts[0]) || 0;
+                    const m = parseFloat(parts[1]) || 0;
+                    if (m < 60) return { hours: h, minutes: m, decimal: h + m/60 };
+                }
+            }
+
+            // Handle decimal hours (e.g. 8.5 or 8,5)
+            if (input.includes('.') || input.includes(',')) {
+                const decimal = parseFloat(input.replace(',', '.'));
+                if (!isNaN(decimal)) {
+                    const h = Math.floor(decimal);
+                    const m = Math.round((decimal - h) * 60);
+                    return { hours: h, minutes: m, decimal: decimal };
+                }
+            }
+
+            // Handle "8h 30m" or "8h30m" or just minutes "510m"
+            const hMatch = input.match(/(\d+)h/);
+            const mMatch = input.match(/(\d+)m/);
+            let h = 0, m = 0;
+            if (hMatch) h = parseInt(hMatch[1]);
+            if (mMatch) m = parseInt(mMatch[1]);
+            if (h > 0 || m > 0) {
+                if (m < 60 || (m >= 60 && !hMatch)) {  // allow total minutes if no h
+                    if (m >= 60 && !hMatch) {
+                        h = Math.floor(m / 60);
+                        m = m % 60;
+                    }
+                    return { hours: h, minutes: m, decimal: h + m/60 };
+                }
+            }
+
+            // Fallback: treat as decimal hours if numeric
+            const num = parseFloat(input);
+            if (!isNaN(num)) {
+                const h = Math.floor(num);
+                const m = Math.round((num - h) * 60);
+                return { hours: h, minutes: m, decimal: num };
+            }
+
+            return null; // invalid
+        }
+
+        function formatTimeDisplay(decimalHours) {
+            const h = Math.floor(decimalHours);
+            const m = Math.round((decimalHours - h) * 60);
+            const hDisplay = h > 0 ? `${h} hour${h !== 1 ? 's' : ''}` : '';
+            const mDisplay = m > 0 ? `${m} minute${m !== 1 ? 's' : ''}` : '';
+            const timeText = [hDisplay, mDisplay].filter(Boolean).join(' and ') || '0 minutes';
+            return `${timeText} (${decimalHours.toFixed(2)} decimal hours)`;
+        }
+
+        function calculate() {
+            const input = document.getElementById('timeInput').value;
+            const parsed = parseTime(input);
+
+            if (!parsed || parsed.decimal <= 0) {
+                alert('Please enter a valid positive time (e.g. 8:30, 8.5, 8h30m, or 510m)');
+                return;
+            }
+
+            const baseAmount = parsed.decimal * 65;
+            const finalAmount = baseAmount * 1.3;  // +30% markup
+            const equivalentDecimal = finalAmount / 65;  // This is exactly parsed.decimal * 1.3
+
+            document.getElementById('timeDisplay').textContent = formatTimeDisplay(parsed.decimal);
+            document.getElementById('base').textContent = '$' + baseAmount.toFixed(2);
+            document.getElementById('total').textContent = '$' + finalAmount.toFixed(2);
+            document.getElementById('equivalentTime').textContent = formatTimeDisplay(equivalentDecimal);
+
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
